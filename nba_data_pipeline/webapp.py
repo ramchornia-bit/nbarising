@@ -126,6 +126,9 @@ class Service:
         headers = {k.lower(): v for k, v in (headers or {}).items()}
         try:
             route = path.rstrip("/") or "/"
+            if route == "/":
+                return 200, {"name": "Court Signal API", "health": PREFIX + "/health", "status": PREFIX + "/status",
+                             "lists": [f"{PREFIX}/lists/{n}" for n in sorted(LIST_NAMES)]}
             if route == PREFIX + "/health":
                 return 200, {"ok": True, "time": _now()}
             if self.api_key and headers.get("x-api-key") != self.api_key:
