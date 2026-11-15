@@ -2,16 +2,12 @@ services:
   - type: web
     name: court-signal
     runtime: docker
-    plan: starter            # persistent disk needs a paid plan (about 7 USD/month)
+    plan: free
     healthCheckPath: /api/v1/health
-    disk:
-      name: data
-      mountPath: /data
-      sizeGB: 1
     envVars:
       - key: COURT_SIGNAL_API_KEY
         generateValue: true
-      - key: BOOTSTRAP_FROM
-        value: "2026-10-01"
-      - key: UPDATE_HOURS
-        value: "6"
+      - key: SNAPSHOT_REPO          # your-github-name/your-repo-name  (set in the Render dashboard)
+        sync: false
+      - key: SNAPSHOT_TOKEN         # GitHub token, read access to the repo (set in the Render dashboard)
+        sync: false

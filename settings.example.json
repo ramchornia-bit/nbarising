@@ -1,14 +1,48 @@
 {
   "league_format": "points",
-  "points_weights": {"points": 1.0, "rebounds": 1.2, "assists": 1.5, "steals": 3.0, "blocks": 3.0, "turnovers": -1.0},
-  "categories": ["points", "rebounds", "assists", "steals", "blocks", "fg3m", "fg_pct", "ft_pct", "turnovers"],
-  "signal_weights": {"role": 0.30, "production": 0.25, "volume": 0.20, "trend": 0.15, "stability": 0.10},
+  "points_weights": {
+    "points": 1.0,
+    "rebounds": 1.2,
+    "assists": 1.5,
+    "steals": 3.0,
+    "blocks": 3.0,
+    "turnovers": -1.0
+  },
+  "categories": [
+    "points",
+    "rebounds",
+    "assists",
+    "steals",
+    "blocks",
+    "fg3m",
+    "fg_pct",
+    "ft_pct",
+    "turnovers"
+  ],
+  "signal_weights": {
+    "role": 0.3,
+    "production": 0.25,
+    "volume": 0.2,
+    "trend": 0.15,
+    "stability": 0.1
+  },
   "pool_cutoff": 100,
   "min_games": 5,
   "min_recent_minutes": 12,
-  "tier_watch": 70, "tier_add": 80, "tier_good": 90,
+  "tier_watch": 70,
+  "tier_add": 80,
+  "tier_good": 90,
   "spike_cap": 79,
   "backing_minutes_delta": 3.0,
   "backing_starter_delta": 0.4,
-  "backing_usage_delta": 3.0
+  "backing_usage_delta": 3.0,
+  "injury_short_term_days": 14,
+  "injury_season_ending_days": 120,
+  "injury_max_age_days": 3,
+  "max_top_tier": 10,
+  "min_baseline_minutes": 12,
+  "max_stash_listed": 10,
+  "drop_protect_rank": 100,
+  "drop_requires_role_loss": true,
+  "drop_max_baseline_rank": 250
 }
