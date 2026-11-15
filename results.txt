@@ -1,0 +1,292 @@
+﻿2026-11-04: +0 games (had 14)
+2026-11-05: +0 games (had 2)
+2026-11-06: +0 games (had 9)
+{
+  "games": {
+    "dateFrom": "2026-11-04",
+    "dateTo": "2026-11-06",
+    "days": 3,
+    "stored": 0,
+    "alreadyHad": 25,
+    "notFinished": 0,
+    "errors": []
+  },
+  "injuries": {
+    "snapshotDate": "2026-11-07",
+    "entries": 92,
+    "matchedToPlayersInDb": 89,
+    "notInDb": 3,
+    "notInDbExamples": [
+      "Johnny Furphy",
+      "T.J. McConnell",
+      "Thomas Sorber"
+    ],
+    "bySeverity": {
+      "day_to_day": 21,
+      "out_short": 44,
+      "season_ending": 5,
+      "out_long": 22
+    }
+  }
+}
+
+Sustained risers (add)  |  format: points  |  recent 5 games vs previous 10  |  231 players scored
+NOTE: 9 more player(s) scored in the top band and are shown as 'Consider adding' (limit of 10 'Good catch' per list).
+Tiers found: Good catch: 10, Injured - stash only: 1, Consider adding: 26, Watch closely: 26, Below list threshold: 146
+
+ 1. Quenton Jackson (IND)  score 100  Good catch  season rank 179
+    Minutes up from 16 to 24; shot/usage volume up 4.7 per 36 min; fantasy points 14.8 to 28.1 per game; above his baseline in 4 of last 5.
+    last values: [12.4, 35.3, 18.6, 45.9, 28.4]  minutes 16.2 -> 23.8
+
+ 2. Karlo Matkovic (NO)  score 99  Good catch  season rank 204
+    Minutes up from 13 to 23; now starting (5 of last 5); fantasy points 12.0 to 26.3 per game; above his baseline in 5 of last 5.
+    last values: [28.3, 25.5, 41.7, 14.8, 21.1]  minutes 13.4 -> 22.8
+
+ 3. De'Andre Hunter (SAC)  score 99  Good catch  season rank 231  [! Day-to-day: illness]  [! Missed his team's last 1 game]
+    Minutes up from 21 to 35; shot/usage volume up 8.1 per 36 min; fantasy points 9.0 to 25.0 per game; above his baseline in 5 of last 5.
+    last values: [38.2, 28.5, 25.6, 15.4, 17.4]  minutes 20.6 -> 35.2
+
+ 4. Leaky Black (SAC)  score 98  Good catch  season rank 194
+    Minutes up from 14 to 25; now starting (2 of last 5); fantasy points 13.7 to 21.1 per game; above his baseline in 4 of last 5.
+    last values: [21.9, 10.7, 29.1, 14.7, 29.1]  minutes 14.0 -> 25.4
+
+ 5. De'Anthony Melton (GS)  score 97  Good catch  season rank 160
+    Shot/usage volume up 8.6 per 36 min; fantasy points 18.0 to 26.0 per game; above his baseline in 5 of last 5.
+    last values: [20.2, 31.5, 37.7, 19.4, 21.2]  minutes 19.9 -> 22.8
+
+ 6. Klay Thompson (MIA)  score 97  Good catch  season rank 222
+    Minutes up from 18 to 26; shot/usage volume up 3.4 per 36 min; fantasy points 11.6 to 23.7 per game; above his baseline in 4 of last 5.
+    last values: [10.2, 27.5, 20.7, 41.5, 18.5]  minutes 18.4 -> 25.6
+
+ 7. Daniel Gafford (DAL)  score 96  Good catch  season rank 142
+    Minutes up from 18 to 24; shot/usage volume up 5.2 per 36 min; fantasy points 20.4 to 24.6 per game.
+    last values: [27.2, 32.4, 33.4, 15.3, 14.7]  minutes 18.0 -> 23.6
+
+ 8. Christian Braun (DEN)  score 96  Good catch  season rank 139
+    Minutes up from 24 to 34; fantasy points 18.1 to 29.2 per game; above his baseline in 5 of last 5.
+    last values: [22.8, 31.0, 44.1, 27.1, 21.1]  minutes 23.7 -> 34.4
+
+ 9. Saddiq Bey (NO)  score 96  Good catch  season rank 122
+    Minutes up from 21 to 29; fantasy points 19.7 to 30.8 per game; above his baseline in 4 of last 5.
+    last values: [18.3, 42.7, 28.5, 33.3, 31.0]  minutes 21.0 -> 29.2
+
+10. Nolan Traore (BKN)  score 95  Good catch  season rank 157
+    Minutes up from 16 to 26; now starting (5 of last 5); fantasy points 16.6 to 27.4 per game; above his baseline in 5 of last 5.
+    last values: [24.7, 20.4, 29.4, 30.6, 31.8]  minutes 16.3 -> 26.2
+
+11. Tyrese Proctor (CLE)  score 94  Consider adding  season rank 299
+    Minutes up from 11 to 20; fantasy points 7.0 to 18.6 per game; above his baseline in 5 of last 5.
+    last values: [17.2, 24.3, 16.8, 15.2, 19.7]  minutes 11.2 -> 19.6
+
+12. Isaiah Hartenstein (OKC)  score 94  Consider adding  season rank 133
+    Minutes up from 21 to 26; fantasy points 19.4 to 27.9 per game; above his baseline in 5 of last 5.
+    last values: [29.3, 25.4, 32.8, 29.4, 22.7]  minutes 20.8 -> 26.2
+
+13. Alex Sarr (WSH)  score 93  Consider adding  season rank 123
+    Minutes up from 24 to 27; fantasy points 20.0 to 28.7 per game; above his baseline in 4 of last 5.
+    last values: [26.7, 39.8, 8.6, 31.3, 37.1]  minutes 23.5 -> 26.8
+
+14. Trendon Watford (NO)  score 93  Consider adding  season rank 262
+    Minutes up from 12 to 18; fantasy points 10.4 to 17.3 per game; above his baseline in 5 of last 5.
+    last values: [20.2, 12.8, 13.3, 16.6, 23.7]  minutes 12.0 -> 18.0
+
+15. Bones Hyland (MIN)  score 92  Consider adding  season rank 225
+    Minutes up from 12 to 15; shot/usage volume up 12.4 per 36 min; fantasy points 13.4 to 21.6 per game; above his baseline in 4 of last 5.
+    last values: [33.0, 16.7, 24.7, 28.4, 5.2]  minutes 11.8 -> 14.8
+
+16. Mo Bamba (UTAH)  score 92  Consider adding  season rank 183  [! Missed his team's last 1 game]
+    Minutes up from 12 to 18; fantasy points 16.1 to 22.2 per game; above his baseline in 4 of last 5.
+    last values: [34.9, 16.3, 13.8, 22.6, 23.5]  minutes 12.2 -> 17.8
+
+17. Malik Monk (SAC)  score 91  Consider adding  season rank 232
+    Minutes up from 12 to 19; fantasy points 10.0 to 18.9 per game; above his baseline in 4 of last 5.
+    last values: [2.7, 16.5, 36.7, 17.9, 20.5]  minutes 12.3 -> 18.8
+
+18. Aaron Nesmith (IND)  score 91  Consider adding  season rank 177
+    Minutes up from 19 to 26; fantasy points 16.6 to 22.6 per game; above his baseline in 4 of last 5.
+    last values: [19.5, 25.9, 14.6, 20.6, 32.4]  minutes 18.8 -> 25.8
+
+19. Neemias Queta (BOS)  score 90  Consider adding  season rank 150
+    Minutes up from 20 to 23; now starting (4 of last 5); fantasy points 19.8 to 23.6 per game; above his baseline in 4 of last 5.
+    last values: [25.2, 24.1, 23.7, 33.9, 11.1]  minutes 20.2 -> 23.4
+
+20. Herbert Jones (NO)  score 90  Consider adding  season rank 293
+    Minutes up from 17 to 27; now starting (4 of last 5); shot/usage volume up 4.4 per 36 min; fantasy points 10.2 to 16.1 per game; above his baseline in 4 of last 5.
+    last values: [25.3, 19.6, 19.3, 11.5, 4.8]  minutes 17.2 -> 27.2
+
+21. Jaren Jackson Jr. (UTAH)  score 98  Injured - stash only  season rank 134  [! Out (long term): Right knee, not specified; est. return 2026-12-14]  [! Missed his team's last 5 games]
+    Minutes up from 17 to 25; shot/usage volume up 3.1 per 36 min; fantasy points 15.7 to 27.7 per game; above his baseline in 4 of last 5.
+    last values: [31.6, 28.0, 46.5, 19.9, 12.6]  minutes 17.3 -> 25.0
+
+Hot: last games (add)  |  format: points  |  recent 3 games vs previous 7  |  223 players scored
+NOTE: 11 more player(s) scored in the top band and are shown as 'Consider adding' (limit of 10 'Good catch' per list).
+Tiers found: Good catch: 10, Consider adding: 31, Injured - stash only: 1, Watch closely: 25, Below list threshold: 156
+
+ 1. Quenton Jackson (IND)  score 100  Good catch  season rank 179
+    Minutes up from 19 to 27; shot/usage volume up 4.2 per 36 min; fantasy points 18.1 to 31.0 per game; above his baseline in 3 of last 3.
+    last values: [18.6, 45.9, 28.4]  minutes 18.6 -> 27.0
+
+ 2. Charles Bassey (GS)  score 99  Good catch  season rank 180
+    Minutes up from 10 to 19; shot/usage volume up 3.8 per 36 min; fantasy points 12.8 to 26.2 per game; above his baseline in 3 of last 3.
+    last values: [27.0, 29.1, 22.4]  minutes 9.9 -> 19.0
+
+ 3. Collin Murray-Boyles (TOR)  score 99  Good catch  season rank 117
+    Minutes up from 20 to 28; now starting (3 of last 3); shot/usage volume up 4.4 per 36 min; fantasy points 20.1 to 30.1 per game; above his baseline in 2 of last 3.
+    last values: [30.4, 17.6, 42.4]  minutes 19.6 -> 28.3
+
+ 4. Karlo Matkovic (NO)  score 98  Good catch  season rank 204
+    Minutes up from 17 to 23; now starting (3 of last 3); shot/usage volume up 9.0 per 36 min; fantasy points 15.7 to 25.9 per game; above his baseline in 2 of last 3.
+    last values: [41.7, 14.8, 21.1]  minutes 16.6 -> 22.7
+
+ 5. Walter Clayton Jr. (DAL)  score 98  Good catch  season rank 258
+    Minutes up from 11 to 23; shot/usage volume up 3.4 per 36 min; fantasy points 10.3 to 23.9 per game; above his baseline in 3 of last 3.
+    last values: [27.2, 22.7, 21.8]  minutes 11.3 -> 22.7
+
+ 6. Mario Hezonja (CLE)  score 98  Good catch  season rank 145
+    Minutes up from 18 to 26; shot/usage volume up 4.8 per 36 min; fantasy points 19.6 to 27.2 per game; above his baseline in 3 of last 3.
+    last values: [32.1, 21.1, 28.5]  minutes 18.4 -> 25.7
+
+ 7. Braden Smith (IND)  score 97  Good catch  season rank 240
+    Minutes up from 13 to 22; now starting (2 of last 3); shot/usage volume up 3.1 per 36 min; fantasy points 10.7 to 24.5 per game; above his baseline in 2 of last 3.
+    last values: [0.0, 45.8, 27.7]  minutes 13.3 -> 22.3
+
+ 8. Klay Thompson (MIA)  score 97  Good catch  season rank 222
+    Minutes up from 20 to 28; shot/usage volume up 3.1 per 36 min; fantasy points 13.2 to 26.9 per game; above his baseline in 3 of last 3.
+    last values: [20.7, 41.5, 18.5]  minutes 20.0 -> 28.3
+
+ 9. Malik Monk (SAC)  score 96  Good catch  season rank 232
+    Minutes up from 12 to 24; fantasy points 9.8 to 25.0 per game; above his baseline in 3 of last 3.
+    last values: [36.7, 17.9, 20.5]  minutes 11.8 -> 24.0
+
+10. Jakob Poeltl (TOR)  score 96  Good catch  season rank 184
+    Minutes up from 21 to 24; shot/usage volume up 10.5 per 36 min; fantasy points 14.6 to 30.6 per game; above his baseline in 3 of last 3.
+    last values: [32.7, 15.5, 43.7]  minutes 20.6 -> 24.3
+
+11. Brayden Burries (MIL)  score 95  Consider adding  season rank 130
+    Minutes up from 17 to 29; now starting (3 of last 3); fantasy points 18.6 to 28.3 per game; above his baseline in 3 of last 3.
+    last values: [20.3, 19.5, 45.2]  minutes 17.3 -> 28.7
+
+12. Micah Peavy (OKC)  score 95  Consider adding  season rank 356
+    Minutes up from 10 to 20; shot/usage volume up 12.9 per 36 min; fantasy points 1.6 to 15.0 per game; above his baseline in 3 of last 3.
+    last values: [13.0, 17.3, 14.8]  minutes 9.5 -> 20.0
+
+13. Morez Johnson Jr. (DAL)  score 94  Consider adding  season rank 230
+    Minutes up from 15 to 20; fantasy points 12.3 to 25.1 per game; above his baseline in 3 of last 3.
+    last values: [19.9, 16.1, 39.4]  minutes 15.3 -> 19.7
+
+14. Kingston Flemings (ATL)  score 94  Consider adding  season rank 176
+    Minutes up from 20 to 24; now starting (2 of last 3); fantasy points 18.0 to 24.4 per game; above his baseline in 3 of last 3.
+    last values: [32.4, 21.6, 19.2]  minutes 19.7 -> 24.3
+
+15. Clint Capela (HOU)  score 94  Consider adding  season rank 248  [! Out (short term): Right ankle, sprain; est. return 2026-11-09]  [! Missed his team's last 2 games]
+    Minutes up from 12 to 21; fantasy points 7.8 to 26.7 per game; above his baseline in 2 of last 3.
+    last values: [35.6, 37.7, 6.8]  minutes 11.6 -> 20.7
+
+16. De'Anthony Melton (GS)  score 93  Consider adding  season rank 160
+    Minutes up from 21 to 24; shot/usage volume up 8.0 per 36 min; fantasy points 21.0 to 26.1 per game; above his baseline in 2 of last 3.
+    last values: [37.7, 19.4, 21.2]  minutes 21.0 -> 24.3
+
+17. Josh Okogie (UTAH)  score 92  Consider adding  season rank 320
+    Minutes up from 16 to 23; shot/usage volume up 4.9 per 36 min; fantasy points 7.6 to 17.4 per game; above his baseline in 3 of last 3.
+    last values: [17.6, 12.7, 21.8]  minutes 15.6 -> 23.0
+
+18. Nolan Traore (BKN)  score 92  Consider adding  season rank 157
+    Minutes up from 20 to 27; now starting (3 of last 3); fantasy points 18.3 to 30.6 per game; above his baseline in 3 of last 3.
+    last values: [29.4, 30.6, 31.8]  minutes 19.7 -> 27.0
+
+19. Isaiah Stewart (MEM)  score 91  Consider adding  season rank 220  [! Out (short term): Right knee, bruise; est. return 2026-11-09]  [! Missed his team's last 1 game]
+    Minutes up from 14 to 20; shot/usage volume up 5.0 per 36 min; fantasy points 13.6 to 21.0 per game; above his baseline in 2 of last 3.
+    last values: [28.8, 27.0, 7.2]  minutes 14.2 -> 19.7
+
+20. Luguentz Dort (ATL)  score 91  Consider adding  season rank 172
+    Minutes up from 24 to 31; now starting (3 of last 3); fantasy points 17.0 to 27.0 per game; above his baseline in 3 of last 3.
+    last values: [19.4, 17.1, 44.4]  minutes 23.7 -> 31.3
+
+21. Jaren Jackson Jr. (UTAH)  score 89  Injured - stash only  season rank 134  [! Out (long term): Right knee, not specified; est. return 2026-12-14]  [! Missed his team's last 5 games]
+    Minutes up from 20 to 25; shot/usage volume up 4.4 per 36 min; fantasy points 21.3 to 26.3 per game.
+    last values: [46.5, 19.9, 12.6]  minutes 20.2 -> 25.3
+
+Drop candidates (release)  |  format: points  |  recent 5 games vs previous 10  |  131 players scored
+NOTE: 3 more player(s) scored in the top band and are shown as 'Consider dropping' (limit of 10 'Strong drop candidate' per list).
+NOTE: 119 established players (top 100 by season average or before their recent games) are protected and never listed; players who ranked below 250 before their decline are ignored as not roster-worthy.
+Tiers found: Strong drop candidate: 10, Consider dropping: 15, Watch for decline: 13, Below list threshold: 87
+
+ 1. Brooks Barnhizer (OKC)  score 100  Strong drop candidate  season rank 339
+    Minutes down from 20 to 6; shot/usage volume down 18.8 per 36 min; fantasy points 15.8 to 3.5 per game; below his baseline in 5 of last 5.
+    last values: [1.5, 0.0, 5.4, 10.4, 0.0]  minutes 19.8 -> 6.0
+
+ 2. Chris Manon (LAL)  score 99  Strong drop candidate  season rank 367  [! Missed his team's last 4 games]
+    Minutes down from 17 to 7; shot/usage volume down 6.9 per 36 min; fantasy points 21.1 to 4.2 per game; below his baseline in 5 of last 5.
+    last values: [5.0, 6.7, 6.0, 3.2, 0.0]  minutes 17.0 -> 7.0
+
+ 3. Nikola Jovic (MIA)  score 98  Strong drop candidate  season rank 218
+    Minutes down from 20 to 10; shot/usage volume down 6.4 per 36 min; fantasy points 23.7 to 6.2 per game; below his baseline in 5 of last 5.
+    last values: [2.4, 8.6, 12.3, 2.2, 5.5]  minutes 19.7 -> 9.6
+
+ 4. Myron Gardner (MIA)  score 97  Strong drop candidate  season rank 304
+    Minutes down from 18 to 2; shot/usage volume down 9.8 per 36 min; fantasy points 22.0 to 2.0 per game; below his baseline in 5 of last 5.
+    last values: [6.4, 2.0, 1.7, 0.0, 0.0]  minutes 17.6 -> 2.0
+
+ 5. Ousmane Dieng (MIL)  score 96  Strong drop candidate  season rank 342  [! Missed his team's last 1 game]
+    Minutes down from 24 to 8; fantasy points 18.5 to 3.4 per game; below his baseline in 5 of last 5.
+    last values: [5.7, 0.0, 7.0, 4.2, 0.0]  minutes 23.8 -> 8.0
+
+ 6. Asa Newell (ATL)  score 96  Strong drop candidate  season rank 244  [! Day-to-day: Left toe]  [! Missed his team's last 1 game]
+    Minutes down from 17 to 11; shot/usage volume down 16.5 per 36 min; fantasy points 21.3 to 8.6 per game; below his baseline in 5 of last 5.
+    last values: [4.2, 1.2, 18.3, 10.3, 9.1]  minutes 17.4 -> 11.0
+
+ 7. Quentin Grimes (LAL)  score 95  Strong drop candidate  season rank 216
+    Lost his starting spot; shot/usage volume down 5.3 per 36 min; fantasy points 19.5 to 10.6 per game; below his baseline in 5 of last 5.
+    last values: [8.6, 8.7, 17.8, 10.7, 7.0]  minutes 26.0 -> 24.0
+
+ 8. Justin Edwards (PHI)  score 94  Strong drop candidate  season rank 366
+    Minutes down from 24 to 7; fantasy points 16.6 to 4.7 per game; below his baseline in 5 of last 5.
+    last values: [15.7, 0.0, 1.2, 3.2, 3.2]  minutes 24.0 -> 6.8
+
+ 9. Jamaree Bouyea (PHX)  score 93  Strong drop candidate  season rank 326
+    Minutes down from 17 to 6; shot/usage volume down 7.3 per 36 min; fantasy points 16.1 to 6.4 per game; below his baseline in 4 of last 5.
+    last values: [19.4, 7.2, 3.5, 3.0, -1.0]  minutes 17.2 -> 5.8
+
+10. Graham Ike (GS)  score 92  Strong drop candidate  season rank 286
+    Minutes down from 14 to 9; shot/usage volume down 14.1 per 36 min; fantasy points 16.4 to 7.6 per game; below his baseline in 4 of last 5.
+    last values: [29.0, 3.5, 4.4, 0.0, 1.2]  minutes 13.7 -> 8.6
+
+11. Max Christie (DAL)  score 92  Consider dropping  season rank 238
+    Minutes down from 26 to 17; fantasy points 19.4 to 10.6 per game; below his baseline in 4 of last 5.
+    last values: [19.5, 19.0, 8.2, 4.4, 1.7]  minutes 25.7 -> 16.6
+
+12. Jordan Walsh (BOS)  score 91  Consider dropping  season rank 271
+    Minutes down from 18 to 14; lost his starting spot; fantasy points 18.0 to 7.0 per game; below his baseline in 5 of last 5.
+    last values: [4.4, 5.6, 8.6, 7.8, 8.6]  minutes 18.4 -> 14.0
+
+13. Chris Cenac Jr. (BOS)  score 90  Consider dropping  season rank 289  [! Missed his team's last 2 games]
+    Minutes down from 16 to 7; shot/usage volume down 10.9 per 36 min; fantasy points 20.1 to 9.6 per game; below his baseline in 4 of last 5.
+    last values: [10.4, 28.1, 4.2, 3.4, 2.0]  minutes 15.5 -> 6.6
+
+14. Allen Graves (TOR)  score 89  Consider dropping  season rank 297
+    Minutes down from 17 to 11; fantasy points 17.2 to 6.8 per game; below his baseline in 5 of last 5.
+    last values: [11.8, 6.0, 3.0, 7.7, 5.4]  minutes 16.8 -> 11.2
+
+15. Ryan Conwell (MIA)  score 88  Consider dropping  season rank 245
+    Minutes down from 18 to 13; shot/usage volume down 3.6 per 36 min; fantasy points 18.1 to 10.5 per game; below his baseline in 4 of last 5.
+    last values: [4.2, 7.0, 10.7, 4.4, 26.2]  minutes 17.7 -> 13.2
+
+16. Luke Kennard (PHX)  score 88  Consider dropping  season rank 239
+    Lost his starting spot; shot/usage volume down 4.5 per 36 min; fantasy points 19.2 to 11.5 per game; below his baseline in 4 of last 5.
+    last values: [13.2, 13.2, 9.9, 0.5, 20.7]  minutes 17.0 -> 16.2
+
+17. Jabari Walker (PHI)  score 87  Consider dropping  season rank 246
+    Minutes down from 17 to 11; shot/usage volume down 4.3 per 36 min; fantasy points 19.1 to 10.7 per game; below his baseline in 4 of last 5.
+    last values: [3.2, 14.1, 19.2, 1.5, 15.5]  minutes 16.6 -> 10.8
+
+18. Julian Champagnie (SA)  score 86  Consider dropping  season rank 189
+    Shot/usage volume down 3.9 per 36 min; fantasy points 21.5 to 15.6 per game; below his baseline in 5 of last 5.
+    last values: [13.2, 20.1, 14.2, 12.3, 18.4]  minutes 24.6 -> 24.6
+
+19. Isaiah Collier (UTAH)  score 85  Consider dropping  season rank 215
+    Shot/usage volume down 3.0 per 36 min; fantasy points 19.6 to 11.7 per game; below his baseline in 5 of last 5.
+    last values: [18.4, 18.2, 11.4, 1.2, 9.1]  minutes 17.4 -> 14.4
+
+20. Keon Ellis (BKN)  score 84  Consider dropping  season rank 257
+    Lost his starting spot; fantasy points 15.9 to 12.4 per game.
+    last values: [17.6, 13.7, 5.9, 18.2, 6.4]  minutes 22.4 -> 20.2
