@@ -26,8 +26,11 @@ DEFAULT_POINT_WEIGHTS = {
 DEFAULT_CATEGORIES = [
     "points", "rebounds", "assists", "steals", "blocks", "fg3m", "fg_pct", "ft_pct", "turnovers",
 ]
+# Tuned with the backtest on the first weeks of the 2026-27 season (points leagues): a change of role
+# (minutes, starting) persists, a hot shooting streak does not, so role and stability weigh more and raw
+# production less than in the first design (0.30 / 0.25 / 0.20 / 0.15 / 0.10). Re-check as data grows.
 DEFAULT_SIGNAL_WEIGHTS = {
-    "role": 0.30, "production": 0.25, "volume": 0.20, "trend": 0.15, "stability": 0.10,
+    "role": 0.40, "production": 0.10, "volume": 0.15, "trend": 0.15, "stability": 0.20,
 }
 
 
