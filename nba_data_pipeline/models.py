@@ -31,6 +31,7 @@ class Game:
     away_team_id: int
     home_score: int | None = None
     away_score: int | None = None
+    season_type: int | None = None  # ESPN: 1 preseason, 2 regular season, 3 postseason
 
 
 @dataclass(frozen=True)

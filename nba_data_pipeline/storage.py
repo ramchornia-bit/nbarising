@@ -33,7 +33,8 @@ CREATE TABLE IF NOT EXISTS games (
     home_team_id INTEGER NOT NULL,
     away_team_id INTEGER NOT NULL,
     home_score INTEGER,
-    away_score INTEGER
+    away_score INTEGER,
+    season_type INTEGER
 );
 
 CREATE TABLE IF NOT EXISTS player_game_stats (
@@ -115,6 +116,9 @@ def connect(db_path: Path) -> sqlite3.Connection:
 
 def init_db(connection: sqlite3.Connection) -> None:
     connection.executescript(SQLITE_SCHEMA)
+    columns = {row[1] for row in connection.execute("PRAGMA table_info(games)")}
+    if "season_type" not in columns:                      # database created before this column existed
+        connection.execute("ALTER TABLE games ADD COLUMN season_type INTEGER")
     connection.commit()
 
 
@@ -157,10 +161,12 @@ def upsert_game(connection: sqlite3.Connection, game: Game) -> None:
     connection.execute(
         """
         INSERT INTO games (
-            game_id, season, game_date, status, home_team_id, away_team_id, home_score, away_score
+            game_id, season, game_date, status, home_team_id, away_team_id, home_score, away_score,
+            season_type
         )
         VALUES (
-            :game_id, :season, :game_date, :status, :home_team_id, :away_team_id, :home_score, :away_score
+            :game_id, :season, :game_date, :status, :home_team_id, :away_team_id, :home_score, :away_score,
+            :season_type
         )
         ON CONFLICT(game_id) DO UPDATE SET
             season = excluded.season,
@@ -169,7 +175,8 @@ def upsert_game(connection: sqlite3.Connection, game: Game) -> None:
             home_team_id = excluded.home_team_id,
             away_team_id = excluded.away_team_id,
             home_score = excluded.home_score,
-            away_score = excluded.away_score
+            away_score = excluded.away_score,
+            season_type = COALESCE(excluded.season_type, games.season_type)
         """,
         asdict(game),
     )

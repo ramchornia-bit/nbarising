@@ -121,6 +121,14 @@ class History:
     games: list[Game]
 
 
+def _regular_season_filter(connection: sqlite3.Connection, alias: str) -> str:
+    """SQL fragment that drops preseason/offseason games; empty for databases without season_type."""
+    columns = {row[1] for row in connection.execute("PRAGMA table_info(games)")}
+    if "season_type" not in columns:
+        return ""
+    return f" AND COALESCE({alias}.season_type, 2) NOT IN (1, 4)"
+
+
 def load_histories(
     connection: sqlite3.Connection, settings: Settings, as_of: str | None = None
 ) -> tuple[dict[int, History], float]:
@@ -131,8 +139,10 @@ def load_histories(
         FROM player_game_stats s
         JOIN players p ON p.player_id = s.player_id
         LEFT JOIN teams t ON t.team_id = s.team_id
+        LEFT JOIN games g ON g.game_id = s.game_id
         WHERE COALESCE(s.played, 1) = 1 AND COALESCE(s.minutes_seconds, 0) > 0
           AND (? IS NULL OR s.game_date <= ?)
+        """ + _regular_season_filter(connection, "g") + """
         ORDER BY s.game_date, s.game_id
         """,
         (as_of, as_of),
@@ -320,7 +330,7 @@ def absence_flag(connection: sqlite3.Connection, history: History,
         SELECT COUNT(*) FROM games
         WHERE (home_team_id = ? OR away_team_id = ?) AND game_date > ?
           AND (? IS NULL OR game_date <= ?)
-        """,
+        """ + _regular_season_filter(connection, "games"),
         (history.team_id, history.team_id, last_played, as_of, as_of),
     ).fetchone()[0]
     if missed <= 0:

@@ -32,7 +32,7 @@ from typing import Any
 from urllib.parse import parse_qs, unquote, urlparse
 
 from .config import Settings, load_settings, settings_as_dict, settings_from_dict
-from .engine import load_histories, waiver_list
+from .engine import _regular_season_filter, load_histories, waiver_list
 from .injuries import describe, ensure_schema, latest_injury_flags
 from .names import normalize_name
 
@@ -355,8 +355,10 @@ class Service:
                               s.turnovers, s.fgm, s.fga, s.fg3m, s.fg3a, s.ftm, s.fta,
                               COALESCE(o.abbreviation,'') AS opponent
                        FROM player_game_stats s LEFT JOIN teams o ON o.team_id = s.opponent_team_id
-                       WHERE s.player_id = ? AND COALESCE(s.played,1)=1 AND COALESCE(s.minutes_seconds,0) > 0
-                       ORDER BY s.game_date, s.game_id""", (player_id,)).fetchall()
+                       LEFT JOIN games g ON g.game_id = s.game_id
+                       WHERE s.player_id = ? AND COALESCE(s.played,1)=1 AND COALESCE(s.minutes_seconds,0) > 0"""
+                    + _regular_season_filter(c, "g") +
+                    " ORDER BY s.game_date, s.game_id", (player_id,)).fetchall()
                 games = history.games
                 if len(lines) != len(games):
                     raise ApiError(503, "data changed while reading; retry")

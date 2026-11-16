@@ -76,6 +76,18 @@ def _team(raw: dict[str, Any]) -> Team:
     )
 
 
+def event_season_type(event: dict[str, Any]) -> int | None:
+    """ESPN season type of a scoreboard event: 1 preseason, 2 regular season, 3 postseason (None if absent)."""
+    season = event.get("season") or {}
+    value = season.get("type")
+    if isinstance(value, dict):
+        value = value.get("type") or value.get("id")
+    try:
+        return int(value) if value is not None else None
+    except (TypeError, ValueError):
+        return None
+
+
 def normalize_espn_game(
     event: dict[str, Any], summary: dict[str, Any], game_date: str
 ) -> tuple[list[Team], list[Player], Game, list[PlayerGameStat]]:
@@ -98,6 +110,7 @@ def normalize_espn_game(
         away_team_id=away_id,
         home_score=_int(home.get("score")),
         away_score=_int(away.get("score")),
+        season_type=event_season_type(event),
     )
 
     players: dict[int, Player] = {}
@@ -178,6 +191,8 @@ def ingest_espn_day(
         if not event.get("status", {}).get("type", {}).get("completed"):
             pending += 1
             continue
+        if event_season_type(event) == 1:          # preseason: unreliable minutes, not part of the season
+            continue
         if not force and _already_ingested(connection, str(event["id"])):
             skipped += 1
             continue
@@ -219,3 +234,31 @@ def backfill_espn(
 
 def parse_day(text: str) -> date:
     return datetime.strptime(text, "%Y-%m-%d").date()
+
+
+def backfill_season_types(
+    connection: sqlite3.Connection, provider: EspnProvider | None = None, progress: bool = True
+) -> dict[str, Any]:
+    """Fill season_type for games stored before that column existed (one scoreboard call per day)."""
+    provider = provider or EspnProvider()
+    days = [r[0] for r in connection.execute(
+        "SELECT DISTINCT game_date FROM games WHERE season_type IS NULL ORDER BY game_date")]
+    updated = 0
+    errors: list[str] = []
+    for text in days:
+        try:
+            board = provider.scoreboard(date.fromisoformat(text))
+            with connection:
+                for event in board.get("events", []):
+                    kind = event_season_type(event)
+                    if kind is None:
+                        continue
+                    cursor = connection.execute(
+                        "UPDATE games SET season_type = ? WHERE game_id = ? AND season_type IS NULL",
+                        (kind, str(event["id"])))
+                    updated += cursor.rowcount
+        except Exception as exc:
+            errors.append(f"{text}: {exc!r}")
+    if progress:
+        print(f"season types: {updated} games updated over {len(days)} days, {len(errors)} errors", flush=True)
+    return {"daysChecked": len(days), "gamesUpdated": updated, "errors": errors[:5]}

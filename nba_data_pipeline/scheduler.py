@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Any
 
 from .config import Settings, load_settings
-from .espn import backfill_espn
+from .espn import backfill_espn, backfill_season_types
 from .injuries import update_injuries
 from .storage import connect, init_db
 
@@ -22,8 +22,9 @@ def run_update(db_path: Path, settings: Settings, days: int = 3, bootstrap_from:
         have = connection.execute("SELECT COUNT(*) FROM games").fetchone()[0]
         start = bootstrap_from if (have == 0 and bootstrap_from) else yesterday - timedelta(days=days - 1)
         games = backfill_espn(connection, start, yesterday)
+        season_types = backfill_season_types(connection)
         injuries = update_injuries(connection, settings)
-        return {"from": start.isoformat(), "to": yesterday.isoformat(), "games": games, "injuries": injuries}
+        return {"from": start.isoformat(), "to": yesterday.isoformat(), "games": games, "seasonTypes": season_types, "injuries": injuries}
     finally:
         connection.close()
 
