@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'list_tab.dart';
 import 'search_screen.dart';
 import 'settings_screen.dart';
+import 'track_record_screen.dart';
+import 'watch_tab.dart';
 import 'state.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -35,7 +37,7 @@ class _HomeScreenState extends State<HomeScreen> {
       builder: (context, _) {
         final state = widget.state;
         return DefaultTabController(
-          length: 3,
+          length: 4,
           child: Scaffold(
             appBar: AppBar(
               title: const Text('Court Signal'),
@@ -45,6 +47,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   icon: const Icon(Icons.search),
                   onPressed: () => Navigator.of(context)
                       .push(MaterialPageRoute(builder: (_) => SearchScreen(state: widget.state))),
+                ),
+                IconButton(
+                  tooltip: 'Track record',
+                  icon: const Icon(Icons.insights),
+                  onPressed: () => Navigator.of(context)
+                      .push(MaterialPageRoute(builder: (_) => TrackRecordScreen(state: widget.state))),
                 ),
                 IconButton(
                   tooltip: 'Settings',
@@ -71,8 +79,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   const TabBar(tabs: [
                     Tab(text: 'Rising'),
-                    Tab(text: 'Hot (3 games)'),
+                    Tab(text: 'Hot 3'),
                     Tab(text: 'Drop'),
+                    Tab(text: 'Watch'),
                   ]),
                 ]),
               ),
@@ -81,6 +90,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ListTab(state: state, listName: 'sustained'),
               ListTab(state: state, listName: 'hot'),
               ListTab(state: state, listName: 'drop'),
+              WatchTab(state: state),
             ]),
           ),
         );

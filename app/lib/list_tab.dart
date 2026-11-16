@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'charts.dart';
 import 'detail_screen.dart';
 import 'models.dart';
 import 'player_card.dart';
@@ -119,6 +120,18 @@ class _ListTabState extends State<ListTab> with AutomaticKeepAliveClientMixin {
     );
   }
 
+  int _staleDays(String? through) {
+    final day = through == null ? null : DateTime.tryParse(through);
+    return day == null ? 0 : DateTime.now().difference(day).inDays;
+  }
+
+  Widget _card(Player p, void Function(Player) open) => PlayerCard(
+        player: p,
+        onTap: () => open(p),
+        starred: widget.state.isWatched(p.id),
+        onStar: () => widget.state.toggleWatch(p.id, p.name, p.team),
+      );
+
   Widget _content(BuildContext context, ListResult result) {
     final theme = Theme.of(context);
     final main = result.players.where((p) => !p.stash).toList();
@@ -158,6 +171,28 @@ class _ListTabState extends State<ListTab> with AutomaticKeepAliveClientMixin {
               ),
             ]),
           ),
+        if (_staleDays(result.dataThrough) > 3)
+          Card(
+            margin: const EdgeInsets.fromLTRB(12, 10, 12, 0),
+            color: const Color(0xFFB7791F).withAlpha(40),
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Row(children: [
+                const Icon(Icons.warning_amber_rounded, color: Color(0xFFB7791F)),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                      'Data is ${_staleDays(result.dataThrough)} days old (games through ${result.dataThrough}). '
+                      'The daily update may have failed, so these picks could be out of date.'),
+                ),
+              ]),
+            ),
+          ),
+        if (result.distribution.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+            child: TierBar(distribution: result.distribution),
+          ),
         if (header.isNotEmpty)
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 10, 16, 4),
@@ -173,7 +208,7 @@ class _ListTabState extends State<ListTab> with AutomaticKeepAliveClientMixin {
             padding: EdgeInsets.all(32),
             child: Center(child: Text('No players on this list right now.')),
           ),
-        for (final p in main) PlayerCard(player: p, onTap: () => open(p)),
+        for (final p in main) _card(p, open),
         if (stash.isNotEmpty) ...[
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 20, 16, 4),
@@ -185,7 +220,7 @@ class _ListTabState extends State<ListTab> with AutomaticKeepAliveClientMixin {
             child: Text('Long-term injuries: only worth a roster spot if you can hold them.',
                 style: theme.textTheme.bodySmall?.copyWith(color: theme.hintColor)),
           ),
-          for (final p in stash) PlayerCard(player: p, onTap: () => open(p)),
+          for (final p in stash) _card(p, open),
         ],
       ],
     );

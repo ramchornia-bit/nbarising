@@ -33,7 +33,7 @@ from urllib.parse import parse_qs, unquote, urlparse
 
 from .config import Settings, load_settings, settings_as_dict, settings_from_dict
 from .engine import load_histories, waiver_list
-from .injuries import ensure_schema, describe
+from .injuries import describe, ensure_schema, latest_injury_flags
 from .names import normalize_name
 
 PREFIX = "/api/v1"
@@ -105,11 +105,12 @@ class Service:
                 pass
         return stamp
 
-    def _cached(self, key: str, compute):
+    def _cached(self, key: str, compute, ttl: int | None = None):
         stamp, now = self._db_stamp(), time.time()
+        limit_seconds = self.cache_seconds if ttl is None or self.cache_seconds == 0 else ttl
         with self._lock:
             hit = self._cache.get(key)
-            if hit and hit[0] == stamp and now - hit[1] < self.cache_seconds:
+            if hit and hit[0] == stamp and now - hit[1] < limit_seconds:
                 return hit[2]
         value = compute()
         with self._lock:
@@ -150,6 +151,10 @@ class Service:
                 if method == "POST":
                     return 200, self._list(parts[1], q, self._json_body(body))
                 raise ApiError(405, "use GET or POST")
+            if parts == ["backtest"] and method in ("GET", "POST"):
+                return 200, self._backtest(q, self._json_body(body) if method == "POST" else None)
+            if parts == ["watchlist"] and method == "POST":
+                return 200, self._watchlist(q, self._json_body(body))
             if method == "GET" and parts == ["players"]:
                 return 200, self._search(q.get("q", ""))
             if method == "GET" and len(parts) == 3 and parts[0] == "players" and parts[2] == "form":
@@ -183,8 +188,11 @@ class Service:
                 ensure_ro = c.execute(
                     "SELECT name FROM sqlite_master WHERE name='player_injury_snapshots'").fetchone()
                 inj = c.execute("SELECT MAX(snapshot_date) FROM player_injury_snapshots").fetchone()[0] if ensure_ro else None
+                through = self._data_through(c)
+                age = (datetime.now(timezone.utc).date() - datetime.strptime(through, "%Y-%m-%d").date()).days if through else None
                 return {
-                    "dataThrough": self._data_through(c),
+                    "dataThrough": through,
+                    "dataAgeDays": age,
                     "games": c.execute("SELECT COUNT(*) FROM games").fetchone()[0],
                     "players": c.execute("SELECT COUNT(*) FROM players").fetchone()[0],
                     "playerGameRows": c.execute(
@@ -194,13 +202,12 @@ class Service:
                 }
         return self._cached("status", compute)
 
-    def _list(self, name: str, q: dict[str, str], body: dict[str, Any] | None) -> dict[str, Any]:
-        if name not in LIST_NAMES:
-            raise ApiError(404, "list must be sustained, hot or drop")
+    def _settings_from(self, q: dict[str, str], body: dict[str, Any] | None) -> tuple[Settings, dict[str, Any]]:
         values = {f: v for f, v in settings_as_dict(self.base).items()}
         extras: dict[str, Any] = {}
         if body is not None:
-            extras = {k: body[k] for k in ("limit", "all", "window", "include_settings") if k in body}
+            extras = {k: body[k] for k in ("limit", "all", "window", "include_settings", "ids", "forward", "step")
+                      if k in body}
             values.update({k: v for k, v in body.items() if k not in extras})
         for key, (field, cast) in QUERY_SETTINGS.items():
             if key in q:
@@ -208,7 +215,12 @@ class Service:
                     values[field] = cast(q[key])
                 except ValueError:
                     raise ApiError(400, f"{key} has the wrong type")
-        settings = settings_from_dict(values)
+        return settings_from_dict(values), extras
+
+    def _list(self, name: str, q: dict[str, str], body: dict[str, Any] | None) -> dict[str, Any]:
+        if name not in LIST_NAMES:
+            raise ApiError(404, "list must be sustained, hot or drop")
+        settings, extras = self._settings_from(q, body)
         limit = extras.get("limit", q.get("limit", 20))
         limit = _int(str(limit), "limit", 1, 200)
         show_all = str(extras.get("all", q.get("all", ""))).lower() in _TRUE
@@ -227,6 +239,78 @@ class Service:
             if not include:
                 result.pop("settings", None)
             return result
+        return self._cached(key, compute)
+
+    def _backtest(self, q: dict[str, str], body: dict[str, Any] | None) -> dict[str, Any]:
+        from .backtest import run_backtest
+        settings, extras = self._settings_from(q, body)
+        forward = _int(str(extras.get("forward", q.get("forward", 5))), "forward", 2, 10)
+        step = _int(str(extras.get("step", q.get("step", 3))), "step", 1, 10)
+        key = json.dumps(["backtest", forward, step, settings_as_dict(settings)], sort_keys=True)
+
+        def compute():
+            with self._connect() as c:
+                result = run_backtest(c, settings, forward_games=forward, step_dates=step)
+                result["dataThrough"] = self._data_through(c)
+            result["generatedAt"] = _now()
+            return result
+        return self._cached(key, compute, ttl=3600)
+
+    def _watchlist(self, q: dict[str, str], body: dict[str, Any] | None) -> dict[str, Any]:
+        settings, extras = self._settings_from(q, body)
+        raw = extras.get("ids")
+        if not isinstance(raw, list) or not raw:
+            return {"players": [], "dataThrough": None, "generatedAt": _now()}
+        if len(raw) > 60:
+            raise ApiError(400, "at most 60 players")
+        try:
+            ids = [int(i) for i in raw]
+        except (TypeError, ValueError):
+            raise ApiError(400, "ids must be whole numbers")
+        key = json.dumps(["watch", sorted(ids), settings_as_dict(settings)], sort_keys=True)
+
+        def compute():
+            with self._connect() as c:
+                histories, _ = load_histories(c, settings)
+                eligible = [pid for pid, h in histories.items() if len(h.games) >= settings.min_games]
+                season = {pid: sum(g.value for g in histories[pid].games) / len(histories[pid].games)
+                          for pid in eligible}
+                rank = {pid: i + 1 for i, pid in enumerate(sorted(eligible, key=lambda p: season[p], reverse=True))}
+                scored: dict[str, dict[int, dict[str, Any]]] = {}
+                for list_name in ("sustained", "hot"):
+                    listing = waiver_list(c, settings, list_name, show_all=True, limit=100000)
+                    scored[list_name] = {p["playerId"]: p for p in listing["players"]}
+                flags = latest_injury_flags(c, settings)
+                names = {r["player_id"]: r["full_name"] for r in c.execute(
+                    "SELECT player_id, full_name FROM players WHERE player_id IN (%s)" % ",".join("?" * len(ids)), ids)}
+                out = []
+                for pid in ids:
+                    history = histories.get(pid)
+                    if history is None:
+                        out.append({"playerId": pid, "name": names.get(pid, "Unknown"), "team": "",
+                                    "gamesPlayed": 0, "flags": [flags[pid]] if pid in flags else []})
+                        continue
+                    values = [g.value for g in history.games]
+                    mins = [g.minutes for g in history.games]
+                    avg = lambda xs: round(sum(xs) / len(xs), 2) if xs else None
+                    entry: dict[str, Any] = {
+                        "playerId": pid, "name": history.name, "team": history.team,
+                        "gamesPlayed": len(values),
+                        "seasonRank": rank.get(pid), "seasonAverage": avg(values),
+                        "last3Average": avg(values[-3:]), "last5Average": avg(values[-5:]),
+                        "minutesRecent": avg(mins[-5:]), "minutesSeason": avg(mins),
+                        "recentValues": [round(v, 1) for v in values[-8:]],
+                        "flags": [],
+                    }
+                    for list_name in ("sustained", "hot"):
+                        item = scored[list_name].get(pid)
+                        if item:
+                            entry[list_name] = {"score": item["score"], "label": item["label"],
+                                                "reason": item["reason"]}
+                    if pid in flags:
+                        entry["flags"].append(flags[pid])
+                    out.append(entry)
+                return {"players": out, "dataThrough": self._data_through(c), "generatedAt": _now()}
         return self._cached(key, compute)
 
     def _search(self, text: str) -> dict[str, Any]:

@@ -97,6 +97,7 @@ class ListResult {
     required this.recentGames,
     required this.baselineGames,
     required this.populationSize,
+    required this.distribution,
   });
 
   final List<Player> players;
@@ -105,6 +106,7 @@ class ListResult {
   final int? recentGames;
   final int? baselineGames;
   final int? populationSize;
+  final Map<String, int> distribution;
 
   factory ListResult.fromJson(Map<String, dynamic> j) => ListResult(
         players: ((j['players'] as List?) ?? const [])
@@ -116,6 +118,9 @@ class ListResult {
         recentGames: (j['recentGames'] as num?)?.toInt(),
         baselineGames: (j['baselineGames'] as num?)?.toInt(),
         populationSize: (j['populationSize'] as num?)?.toInt(),
+        distribution: j['distribution'] is Map
+            ? (j['distribution'] as Map).map((k, v) => MapEntry(k.toString(), (v as num).toInt()))
+            : <String, int>{},
       );
 }
 

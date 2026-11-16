@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 
+import 'charts.dart';
 import 'models.dart';
 import 'state.dart';
 import 'ui.dart';
@@ -39,9 +40,25 @@ class _DetailScreenState extends State<DetailScreen> {
   Widget build(BuildContext context) {
     final p = widget.player;
     final theme = Theme.of(context);
-    final color = labelColor(p.label);
+    final color = p.label == null ? theme.colorScheme.primary : labelColor(p.label);
     return Scaffold(
-      appBar: AppBar(title: Text(p.name)),
+      appBar: AppBar(
+        title: Text(p.name),
+        actions: [
+          ListenableBuilder(
+            listenable: widget.state,
+            builder: (context, _) {
+              final starred = widget.state.isWatched(p.id);
+              return IconButton(
+                tooltip: starred ? 'Remove from watchlist' : 'Add to watchlist',
+                icon: Icon(starred ? Icons.star : Icons.star_border,
+                    color: starred ? const Color(0xFFE0A100) : null),
+                onPressed: () => widget.state.toggleWatch(p.id, p.name, p.team),
+              );
+            },
+          ),
+        ],
+      ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -143,16 +160,7 @@ class _Games extends StatelessWidget {
     if (games.isEmpty) return const Text('No games found.');
     final unit = format == 'points' ? 'fantasy points' : 'category score';
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Text('Game value ($unit), dashed line = season average ${result.seasonAverage.toStringAsFixed(1)}',
-          style: theme.textTheme.bodySmall?.copyWith(color: theme.hintColor)),
-      const SizedBox(height: 8),
-      Sparkline(
-        values: games.map((g) => g.value).toList(),
-        color: color,
-        reference: result.seasonAverage,
-        height: 140,
-        dots: true,
-      ),
+      GameBars(games: games, average: result.seasonAverage, color: color, unit: unit),
       const SizedBox(height: 12),
       SingleChildScrollView(
         scrollDirection: Axis.horizontal,

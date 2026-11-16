@@ -192,6 +192,31 @@ def cmd_serve(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_backtest(args: argparse.Namespace) -> int:
+    from .backtest import run_backtest
+    connection = connect(Path(args.db))
+    settings = load_settings(args.settings, league_format=args.format)
+    result = run_backtest(connection, settings, forward_games=args.forward_games, step_dates=args.step)
+    if args.json:
+        print(json.dumps(result, indent=2))
+        return 0
+    print(f"Track record ({result['format']} league), next {result['forwardGames']} games after each listing; "
+          f"{len(result['asOfDates'])} past days tested")
+    for note in result["notes"][:1]:
+        print(note)
+    for name, block in result["lists"].items():
+        print(f"\n== {name} ==\n{block['summary']}")
+        print(f"{'tier':<24}{'picks':>6}{'avg chg':>9}{'hit %':>7}{'lift':>7}{'min kept':>9}")
+        for tier, v in block["tiers"].items():
+            if not v["picks"]:
+                print(f"{tier:<24}{0:>6}")
+                continue
+            lift = v.get("lift")
+            print(f"{tier:<24}{v['picks']:>6}{v['avgChange']:>9.2f}{v['hitRate']:>7.1f}"
+                  f"{'' if lift is None else format(lift, '.2f'):>7}{v['minutesKept']:>9.2f}")
+    return 0
+
+
 def cmd_serve_web(args: argparse.Namespace) -> int:
     run_web(Path(args.db), args.host, args.port, args.auto_update_hours, args.bootstrap_from)
     return 0
@@ -299,6 +324,15 @@ def build_parser() -> argparse.ArgumentParser:
     serve.add_argument("--host", default="127.0.0.1")
     serve.add_argument("--port", default=8765, type=int)
     serve.set_defaults(func=cmd_serve)
+
+    bt = subparsers.add_parser("backtest", help="How did past picks perform afterwards?")
+    bt.add_argument("--db", required=True)
+    bt.add_argument("--format", default=None, choices=["points", "categories"])
+    bt.add_argument("--settings", default=None)
+    bt.add_argument("--forward-games", default=5, type=int)
+    bt.add_argument("--step", default=3, type=int, help="test every Nth game day")
+    bt.add_argument("--json", action="store_true")
+    bt.set_defaults(func=cmd_backtest)
 
     web = subparsers.add_parser("serve-web", help="Start the Court Signal JSON API (for the app / web page)")
     web.add_argument("--db", required=True)

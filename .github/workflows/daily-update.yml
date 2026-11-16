@@ -34,3 +34,28 @@ jobs:
           gzip -9 -f -k nba.sqlite
           gh release view data >/dev/null 2>&1 || gh release create data --title "Data snapshot" --notes "Updated automatically. Do not edit."
           gh release upload data nba.sqlite.gz --clobber
+      - name: Check freshness (a red run emails you)
+        run: |
+          python - <<'PY'
+          import sqlite3, sys
+          from datetime import date, datetime
+          today = date.today()
+          if today.month in (7, 8, 9):
+              print("offseason: skipping check"); sys.exit(0)
+          c = sqlite3.connect("nba.sqlite")
+          last = c.execute("SELECT MAX(game_date) FROM games").fetchone()[0]
+          inj = c.execute("SELECT MAX(snapshot_date) FROM player_injury_snapshots").fetchone()[0]
+          games = c.execute("SELECT COUNT(*) FROM games").fetchone()[0]
+          problems = []
+          if not last:
+              problems.append("no games in the database")
+          else:
+              age = (today - datetime.strptime(last, "%Y-%m-%d").date()).days
+              if age > 6:
+                  problems.append(f"latest game is {age} days old ({last})")
+          if not inj or (today - datetime.strptime(inj, "%Y-%m-%d").date()).days > 1:
+              problems.append(f"injury snapshot is stale ({inj})")
+          print(f"games={games} last_game={last} injuries={inj}")
+          if problems:
+              print("PROBLEM:", "; ".join(problems)); sys.exit(1)
+          PY

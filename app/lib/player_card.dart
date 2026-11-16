@@ -4,9 +4,11 @@ import 'models.dart';
 import 'ui.dart';
 
 class PlayerCard extends StatelessWidget {
-  const PlayerCard({super.key, required this.player, required this.onTap});
+  const PlayerCard({super.key, required this.player, required this.onTap, this.starred = false, this.onStar});
   final Player player;
   final VoidCallback onTap;
+  final bool starred;
+  final VoidCallback? onStar;
 
   @override
   Widget build(BuildContext context) {
@@ -69,10 +71,21 @@ class PlayerCard extends StatelessWidget {
                 const SizedBox(height: 10),
                 Text(player.reason, style: theme.textTheme.bodyMedium),
               ],
-              if (minutes != null) ...[
-                const SizedBox(height: 6),
-                Text(minutes, style: theme.textTheme.bodySmall?.copyWith(color: theme.hintColor)),
-              ],
+              Row(children: [
+                Expanded(
+                  child: minutes == null
+                      ? const SizedBox.shrink()
+                      : Text(minutes, style: theme.textTheme.bodySmall?.copyWith(color: theme.hintColor)),
+                ),
+                if (onStar != null)
+                  IconButton(
+                    tooltip: starred ? 'Remove from watchlist' : 'Add to watchlist',
+                    visualDensity: VisualDensity.compact,
+                    icon: Icon(starred ? Icons.star : Icons.star_border,
+                        color: starred ? const Color(0xFFE0A100) : theme.hintColor),
+                    onPressed: onStar,
+                  ),
+              ]),
             ],
           ),
         ),

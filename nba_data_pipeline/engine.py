@@ -122,8 +122,9 @@ class History:
 
 
 def load_histories(
-    connection: sqlite3.Connection, settings: Settings
+    connection: sqlite3.Connection, settings: Settings, as_of: str | None = None
 ) -> tuple[dict[int, History], float]:
+    """as_of (YYYY-MM-DD): use only games up to and including that day (for backtesting)."""
     rows = connection.execute(
         """
         SELECT s.*, p.full_name, COALESCE(t.abbreviation, '') AS team_abbr
@@ -131,8 +132,10 @@ def load_histories(
         JOIN players p ON p.player_id = s.player_id
         LEFT JOIN teams t ON t.team_id = s.team_id
         WHERE COALESCE(s.played, 1) = 1 AND COALESCE(s.minutes_seconds, 0) > 0
+          AND (? IS NULL OR s.game_date <= ?)
         ORDER BY s.game_date, s.game_id
-        """
+        """,
+        (as_of, as_of),
     ).fetchall()
     game_value = build_game_value(settings, rows)
     histories: dict[int, History] = {}
@@ -308,15 +311,17 @@ def score_population(
     return out
 
 
-def absence_flag(connection: sqlite3.Connection, history: History) -> dict[str, Any] | None:
+def absence_flag(connection: sqlite3.Connection, history: History,
+                 as_of: str | None = None) -> dict[str, Any] | None:
     """Recent absence: team games played since his last game with minutes. Needs no injury feed."""
     last_played = history.games[-1].date
     missed = connection.execute(
         """
         SELECT COUNT(*) FROM games
         WHERE (home_team_id = ? OR away_team_id = ?) AND game_date > ?
+          AND (? IS NULL OR game_date <= ?)
         """,
-        (history.team_id, history.team_id, last_played),
+        (history.team_id, history.team_id, last_played, as_of, as_of),
     ).fetchone()[0]
     if missed <= 0:
         return None
@@ -356,11 +361,15 @@ def waiver_list(
     window: str = "sustained",
     limit: int = 20,
     show_all: bool = False,
+    as_of: str | None = None,
 ) -> dict[str, Any]:
-    """list_name: 'sustained' | 'hot' (add lists) | 'drop' (uses `window`: 'sustained' | 'hot')."""
+    """list_name: 'sustained' | 'hot' (add lists) | 'drop' (uses `window`: 'sustained' | 'hot').
+
+    as_of: rebuild the list as it would have looked at the end of that day (injury feed is not
+    available historically, so injury flags are skipped)."""
     if list_name not in {"sustained", "hot", "drop"}:
         raise ValueError("list must be sustained, hot or drop")
-    histories, pop_std = load_histories(connection, settings)
+    histories, pop_std = load_histories(connection, settings, as_of)
     eligible = [pid for pid, h in histories.items() if len(h.games) >= settings.min_games]
     season_avg = {pid: _mean([g.value for g in histories[pid].games]) for pid in eligible}
     ranked = sorted(eligible, key=lambda pid: season_avg[pid], reverse=True)
@@ -402,7 +411,7 @@ def waiver_list(
         ]
     scored = score_population(histories, population, direction, recent_n, baseline_n, settings, pop_std)
     scored.sort(key=lambda item: item["score"], reverse=True)
-    injury_flags = latest_injury_flags(connection, settings)
+    injury_flags = {} if as_of else latest_injury_flags(connection, settings)
     _apply_tiers(scored, direction, settings, injury_flags)
 
     distribution: dict[str, int] = {}
@@ -430,7 +439,7 @@ def waiver_list(
         flags = []
         if item["playerId"] in injury_flags:
             flags.append(injury_flags[item["playerId"]])
-        absence = absence_flag(connection, history)
+        absence = absence_flag(connection, history, as_of)
         if absence:
             flags.append(absence)
         item["flags"] = flags
