@@ -244,9 +244,21 @@ class Service:
 
     def _form(self, player_id: int, q: dict[str, str]) -> dict[str, Any]:
         games_n = _int(q.get("games", "10"), "games", 1, 82)
-        settings = settings_from_dict({**settings_as_dict(self.base),
-                                       **({"league_format": q["format"]} if "format" in q else {})})
-        key = f"form|{player_id}|{games_n}|{settings.league_format}"
+        values = settings_as_dict(self.base)
+        if "format" in q:
+            values["league_format"] = q["format"]
+        if q.get("points_weights"):
+            try:
+                weights = json.loads(q["points_weights"])
+            except json.JSONDecodeError:
+                raise ApiError(400, "points_weights must be JSON")
+            if not isinstance(weights, dict):
+                raise ApiError(400, "points_weights must be a JSON object")
+            values["points_weights"] = weights
+        if q.get("categories"):
+            values["categories"] = [c for c in q["categories"].split(",") if c]
+        settings = settings_from_dict(values)
+        key = json.dumps(["form", player_id, games_n, settings_as_dict(settings)], sort_keys=True)
 
         def compute():
             with self._connect() as c:

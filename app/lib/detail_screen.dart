@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 
 import 'models.dart';
@@ -23,8 +25,13 @@ class _DetailScreenState extends State<DetailScreen> {
   }
 
   Future<FormResult> _fetch() async {
-    final json = await widget.state.api.get(
-        '/players/${widget.player.id}/form', {'games': '12', 'format': widget.state.format});
+    final s = widget.state;
+    final json = await s.api.get('/players/${widget.player.id}/form', {
+      'games': '12',
+      'format': s.format,
+      'points_weights': jsonEncode(s.pointsWeights),
+      'categories': s.categories.join(','),
+    });
     return FormResult.fromJson(json);
   }
 
@@ -38,17 +45,20 @@ class _DetailScreenState extends State<DetailScreen> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          Row(children: [
-            ScoreBadge(score: p.score, color: color, size: 64),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(p.label ?? '', style: TextStyle(color: color, fontWeight: FontWeight.w700, fontSize: 16)),
-                Text([p.team, if (p.seasonRank != null) 'Season rank #${p.seasonRank}'].join(' · '),
-                    style: theme.textTheme.bodyMedium?.copyWith(color: theme.hintColor)),
-              ]),
-            ),
-          ]),
+          if (p.label != null)
+            Row(children: [
+              ScoreBadge(score: p.score, color: color, size: 64),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Text(p.label ?? '', style: TextStyle(color: color, fontWeight: FontWeight.w700, fontSize: 16)),
+                  Text([p.team, if (p.seasonRank != null) 'Season rank #${p.seasonRank}'].join(' · '),
+                      style: theme.textTheme.bodyMedium?.copyWith(color: theme.hintColor)),
+                ]),
+              ),
+            ])
+          else
+            Text(p.team, style: theme.textTheme.bodyMedium?.copyWith(color: theme.hintColor)),
           if (p.flags.isNotEmpty) ...[
             const SizedBox(height: 12),
             Wrap(spacing: 6, runSpacing: 6, children: [for (final f in p.flags) FlagChip(f)]),

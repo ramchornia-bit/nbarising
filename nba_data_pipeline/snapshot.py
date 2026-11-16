@@ -126,12 +126,14 @@ def start_snapshot_refresh(dest: Path, config: dict, hours: float = 3.0,
 
     once()
 
+    def next_wait() -> float:
+        missing = not dest.exists() or (web_dir is not None and not (web_dir / "index.html").exists())
+        return 300 if missing else max(hours, 0.05) * 3600
+
     def loop() -> None:
-        wait = 300 if not dest.exists() else max(hours, 0.05) * 3600
         while True:
-            time.sleep(wait)
+            time.sleep(next_wait())
             once()
-            wait = 300 if not dest.exists() else max(hours, 0.05) * 3600
 
     thread = threading.Thread(target=loop, name="court-signal-snapshot", daemon=True)
     thread.start()

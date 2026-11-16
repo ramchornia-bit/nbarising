@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'list_tab.dart';
+import 'search_screen.dart';
 import 'settings_screen.dart';
 import 'state.dart';
 
@@ -39,6 +40,12 @@ class _HomeScreenState extends State<HomeScreen> {
             appBar: AppBar(
               title: const Text('Court Signal'),
               actions: [
+                IconButton(
+                  tooltip: 'Search players',
+                  icon: const Icon(Icons.search),
+                  onPressed: () => Navigator.of(context)
+                      .push(MaterialPageRoute(builder: (_) => SearchScreen(state: widget.state))),
+                ),
                 IconButton(
                   tooltip: 'Settings',
                   icon: const Icon(Icons.settings),

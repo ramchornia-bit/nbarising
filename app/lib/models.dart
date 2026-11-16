@@ -44,6 +44,24 @@ class Player {
   final List<Flag> flags;
   final Map<String, double> signals;
 
+  factory Player.basic(int id, String name, String team) => Player(
+        id: id,
+        name: name,
+        team: team,
+        score: 0,
+        label: null,
+        reason: '',
+        minutesRecent: null,
+        minutesBaseline: null,
+        recentValues: const [],
+        capped: false,
+        stash: false,
+        seasonRank: null,
+        gamesPlayed: null,
+        flags: const [],
+        signals: const {},
+      );
+
   factory Player.fromJson(Map<String, dynamic> j) {
     final rawSignals = j['signalPercentiles'];
     return Player(

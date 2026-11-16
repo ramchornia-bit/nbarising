@@ -37,7 +37,7 @@ class _ListTabState extends State<ListTab> with AutomaticKeepAliveClientMixin {
 
   String _currentSignature() {
     final s = widget.state;
-    return '${s.baseUrl}|${s.apiKey}|${s.format}|${s.poolCutoff}';
+    return '${s.baseUrl}|${s.apiKey}|${s.scoringSignature}';
   }
 
   void _onStateChanged() {
@@ -53,10 +53,9 @@ class _ListTabState extends State<ListTab> with AutomaticKeepAliveClientMixin {
 
   Future<ListResult> _fetch() async {
     final s = widget.state;
-    final json = await s.api.get('/lists/${widget.listName}', {
-      'format': s.format,
-      'pool_cutoff': s.poolCutoff.toString(),
-      'limit': '60',
+    final json = await s.api.post('/lists/${widget.listName}', {
+      ...s.scoringBody,
+      'limit': 60,
       if (widget.listName == 'drop') 'window': _window,
     });
     return ListResult.fromJson(json);
