@@ -18,6 +18,7 @@ import threading
 import time
 import traceback
 import urllib.request
+import zipfile
 from pathlib import Path
 
 
@@ -28,21 +29,30 @@ def _request(url: str, token: str | None, accept: str) -> urllib.request.Request
     return urllib.request.Request(url, headers=headers)
 
 
-def download_snapshot(dest: Path, repo: str, tag: str = "data", asset: str = "nba.sqlite.gz",
-                      token: str | None = None, api: str = "https://api.github.com") -> int:
-    """Download, unzip and atomically swap in the database. Returns its size in bytes."""
+def _find_asset(repo: str, tag: str, asset: str, token: str | None, api: str) -> dict:
     with urllib.request.urlopen(_request(f"{api}/repos/{repo}/releases/tags/{tag}", token,
                                          "application/vnd.github+json"), timeout=60) as resp:
         release = json.loads(resp.read().decode("utf-8"))
     match = next((a for a in release.get("assets", []) if a.get("name") == asset), None)
     if not match:
         raise RuntimeError(f"release '{tag}' has no asset '{asset}' yet")
+    return match
+
+
+def _fetch(info: dict, token: str | None, path: Path) -> None:
+    with urllib.request.urlopen(_request(info["url"], token, "application/octet-stream"), timeout=300) as resp, \
+            open(path, "wb") as out:
+        shutil.copyfileobj(resp, out)
+
+
+def download_snapshot(dest: Path, repo: str, tag: str = "data", asset: str = "nba.sqlite.gz",
+                      token: str | None = None, api: str = "https://api.github.com") -> int:
+    """Download, unzip and atomically swap in the database. Returns its size in bytes."""
+    match = _find_asset(repo, tag, asset, token, api)
     dest.parent.mkdir(parents=True, exist_ok=True)
     gz_path, tmp_path = dest.with_suffix(".download.gz"), dest.with_suffix(".download.tmp")
     try:
-        with urllib.request.urlopen(_request(match["url"], token, "application/octet-stream"), timeout=300) as resp, \
-                open(gz_path, "wb") as out:
-            shutil.copyfileobj(resp, out)
+        _fetch(match, token, gz_path)
         with gzip.open(gz_path, "rb") as src, open(tmp_path, "wb") as out:
             shutil.copyfileobj(src, out)
         check = sqlite3.connect(tmp_path)           # refuse a corrupt file before it replaces a good one
@@ -58,6 +68,32 @@ def download_snapshot(dest: Path, repo: str, tag: str = "data", asset: str = "nb
             path.unlink(missing_ok=True)
 
 
+def download_web(dest_dir: Path, repo: str, tag: str = "web", asset: str = "web.zip",
+                 token: str | None = None, api: str = "https://api.github.com") -> int:
+    """Download the built web app (zip) and swap it in as dest_dir. Returns the number of files."""
+    match = _find_asset(repo, tag, asset, token, api)
+    dest_dir.parent.mkdir(parents=True, exist_ok=True)
+    zip_path = dest_dir.with_name(dest_dir.name + ".download.zip")
+    new_dir = dest_dir.with_name(dest_dir.name + ".new")
+    old_dir = dest_dir.with_name(dest_dir.name + ".old")
+    try:
+        _fetch(match, token, zip_path)
+        shutil.rmtree(new_dir, ignore_errors=True)
+        with zipfile.ZipFile(zip_path) as archive:
+            archive.extractall(new_dir)
+        if not (new_dir / "index.html").exists():
+            raise RuntimeError("web package has no index.html")
+        shutil.rmtree(old_dir, ignore_errors=True)
+        if dest_dir.exists():
+            os.replace(dest_dir, old_dir)
+        os.replace(new_dir, dest_dir)
+        shutil.rmtree(old_dir, ignore_errors=True)
+        return sum(1 for p in dest_dir.rglob("*") if p.is_file())
+    finally:
+        zip_path.unlink(missing_ok=True)
+        shutil.rmtree(new_dir, ignore_errors=True)
+
+
 def config_from_env() -> dict | None:
     repo = os.environ.get("SNAPSHOT_REPO")
     if not repo:
@@ -71,14 +107,22 @@ def config_from_env() -> dict | None:
     }
 
 
-def start_snapshot_refresh(dest: Path, config: dict, hours: float = 3.0) -> threading.Thread:
+def start_snapshot_refresh(dest: Path, config: dict, hours: float = 3.0,
+                           web_dir: Path | None = None) -> threading.Thread:
     """Download now (blocking, so the API starts with data), then refresh in the background."""
+    web_config = {**config, "tag": os.environ.get("SNAPSHOT_WEB_TAG", "web"), "asset": "web.zip"}
+
     def once() -> None:
         try:
             size = download_snapshot(dest, **config)
             print(f"[snapshot] loaded {size / 1e6:.1f} MB", flush=True)
         except Exception:
             traceback.print_exc()
+        if web_dir is not None:
+            try:
+                print(f"[web] loaded {download_web(web_dir, **web_config)} files", flush=True)
+            except Exception as error:      # the web app is optional; the API keeps working without it
+                print(f"[web] not loaded: {error}", flush=True)
 
     once()
 

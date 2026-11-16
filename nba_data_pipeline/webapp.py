@@ -19,6 +19,7 @@ Optional protection: set env COURT_SIGNAL_API_KEY; clients then send header X-AP
 from __future__ import annotations
 
 import json
+import mimetypes
 import os
 import re
 import sqlite3
@@ -28,7 +29,7 @@ from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
-from urllib.parse import parse_qs, urlparse
+from urllib.parse import parse_qs, unquote, urlparse
 
 from .config import Settings, load_settings, settings_as_dict, settings_from_dict
 from .engine import load_histories, waiver_list
@@ -83,6 +84,7 @@ class Service:
         self.base = base_settings or load_settings()
         self.api_key = api_key if api_key is not None else os.environ.get("COURT_SIGNAL_API_KEY") or None
         self.cache_seconds = cache_seconds
+        self.web_dir: Path | None = None      # folder with the built Flutter web app, served at /app/
         self._cache: dict[str, tuple[float, float, Any]] = {}
         self._lock = threading.Lock()
 
@@ -322,8 +324,51 @@ def make_handler(service: Service, cors_origin: str = "*"):
             if self.command != "HEAD" and data:
                 self.wfile.write(data)
 
+        def _static(self, path: str) -> bool:
+            """Serve the Flutter web build under /app/. Returns True when the request was handled."""
+            root = service.web_dir
+            if root is None or not (root / "index.html").exists():
+                return False
+            if path == "/":
+                self.send_response(302)
+                self.send_header("Location", "/app/")
+                self.send_header("Content-Length", "0")
+                self.end_headers()
+                return True
+            if path == "/app":
+                self.send_response(301)
+                self.send_header("Location", "/app/")
+                self.send_header("Content-Length", "0")
+                self.end_headers()
+                return True
+            if not path.startswith("/app/"):
+                return False
+            base = root.resolve()
+            target = (base / (unquote(path[5:]) or "index.html")).resolve()
+            if target != base and base not in target.parents:
+                self._send(404, {"error": "not found"})
+                return True
+            if target.is_dir():
+                target = target / "index.html"
+            if not target.is_file():
+                target = base / "index.html"           # unknown page: let the app handle it
+            kind = mimetypes.guess_type(target.name)[0] or "application/octet-stream"
+            if target.suffix == ".wasm":
+                kind = "application/wasm"
+            data = target.read_bytes()
+            self.send_response(200)
+            self.send_header("Content-Type", kind + ("; charset=utf-8" if kind.startswith("text/") or kind in ("application/javascript", "text/javascript", "application/json") else ""))
+            self.send_header("Content-Length", str(len(data)))
+            volatile = target.name in ("index.html", "flutter_service_worker.js", "flutter_bootstrap.js", "version.json", "manifest.json")
+            self.send_header("Cache-Control", "no-cache" if volatile else "public, max-age=3600")
+            self.end_headers()
+            self.wfile.write(data)
+            return True
+
         def _run(self, method: str) -> None:
             parsed = urlparse(self.path)
+            if method == "GET" and self._static(parsed.path):
+                return
             body = None
             if method == "POST":
                 length = int(self.headers.get("Content-Length") or 0)
@@ -355,10 +400,12 @@ def make_handler(service: Service, cors_origin: str = "*"):
 def run_web(db_path: str | Path, host: str = "127.0.0.1", port: int = 8000,
             auto_update_hours: float = 0, bootstrap_from: str | None = None) -> None:
     service = Service(db_path)
+    service.web_dir = Path(db_path).parent / "web"
     from .snapshot import config_from_env, start_snapshot_refresh
     snapshot = config_from_env()
     if snapshot:
-        start_snapshot_refresh(Path(db_path), snapshot, float(os.environ.get("SNAPSHOT_REFRESH_HOURS", "3")))
+        start_snapshot_refresh(Path(db_path), snapshot, float(os.environ.get("SNAPSHOT_REFRESH_HOURS", "3")),
+                               web_dir=service.web_dir)
     elif auto_update_hours > 0:
         from datetime import date as _date
         from .scheduler import start_background_updates

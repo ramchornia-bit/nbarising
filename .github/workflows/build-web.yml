@@ -1,0 +1,37 @@
+name: build-web
+on:
+  push:
+    paths:
+      - "app/**"
+      - ".github/workflows/build-web.yml"
+  workflow_dispatch: {}
+permissions:
+  contents: write
+concurrency: build-web
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: Build the web app
+        run: |
+          flutter create /tmp/shell --project-name court_signal --platforms web
+          cp -r app/lib /tmp/shell/
+          cp app/pubspec.yaml /tmp/shell/pubspec.yaml
+          cd /tmp/shell
+          flutter pub get
+          flutter build web --release --base-href /app/
+      - name: Publish web.zip
+        run: |
+          cd /tmp/shell/build/web
+          zip -qr "$GITHUB_WORKSPACE/web.zip" .
+          cd "$GITHUB_WORKSPACE"
+          gh release view web >/dev/null 2>&1 || gh release create web --title "Web app" --notes "Built automatically. Do not edit."
+          gh release upload web web.zip --clobber
