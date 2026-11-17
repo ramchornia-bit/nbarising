@@ -143,6 +143,8 @@ class _ListTabState extends State<ListTab> with AutomaticKeepAliveClientMixin {
       if (result.dataThrough != null) 'Games through ${result.dataThrough}',
       if (result.recentGames != null && result.baselineGames != null)
         'Last ${result.recentGames} games vs the ${result.baselineGames} before',
+      if (result.poolMin != null && result.poolMax != null)
+        'Pool: season rank #${result.poolMin}–#${result.poolMax} (${result.populationSize ?? '?'} players)',
     ];
 
     return ListView(

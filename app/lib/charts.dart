@@ -183,15 +183,15 @@ class _GameBarsState extends State<GameBars> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final games = widget.games;
-    final grey = theme.hintColor.withAlpha(110);
+    const red = Color(0xFFC62828);
     final labels = [for (final g in games) g.date.length >= 10 ? g.date.substring(5) : g.date];
-    final valueColors = [for (final g in games) g.value >= widget.average ? widget.color : grey];
+    final valueColors = [for (final g in games) g.value >= widget.average ? widget.color : red];
     final minuteColors = [for (final g in games) g.started ? widget.color : widget.color.withAlpha(90)];
     final sel = _selected;
     final g = (sel != null && sel < games.length) ? games[sel] : null;
 
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Text('Game value (${widget.unit}) · colored = at or above season average',
+      Text('Game value (${widget.unit}) · red = below season average',
           style: theme.textTheme.bodySmall?.copyWith(color: theme.hintColor)),
       const SizedBox(height: 6),
       BarChart(
@@ -295,9 +295,10 @@ class DeltaBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final axis = Theme.of(context).colorScheme.onSurface.withAlpha(80);
+    final signColor = value < 0 ? const Color(0xFFC62828) : const Color(0xFF1B8A3E);
     return SizedBox(
       height: 14,
-      child: CustomPaint(painter: _DeltaPainter(value, maxAbs <= 0 ? 1 : maxAbs, color, axis), child: const SizedBox.expand()),
+      child: CustomPaint(painter: _DeltaPainter(value, maxAbs <= 0 ? 1 : maxAbs, signColor, axis), child: const SizedBox.expand()),
     );
   }
 }

@@ -122,7 +122,9 @@ class _TrackRecordScreenState extends State<TrackRecordScreen> {
         Row(children: [
           Expanded(child: Text(tier, style: TextStyle(color: color, fontWeight: FontWeight.w700))),
           Text('${change >= 0 ? '+' : ''}${change.toStringAsFixed(1)}',
-              style: const TextStyle(fontWeight: FontWeight.w700)),
+              style: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  color: change < 0 ? const Color(0xFFC62828) : const Color(0xFF1B8A3E))),
         ]),
         const SizedBox(height: 4),
         DeltaBar(value: change, maxAbs: maxAbs, color: color),

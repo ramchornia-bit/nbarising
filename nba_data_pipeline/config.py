@@ -26,11 +26,12 @@ DEFAULT_POINT_WEIGHTS = {
 DEFAULT_CATEGORIES = [
     "points", "rebounds", "assists", "steals", "blocks", "fg3m", "fg_pct", "ft_pct", "turnovers",
 ]
-# Tuned with the backtest on the first weeks of the 2026-27 season (points leagues): a change of role
-# (minutes, starting) persists, a hot shooting streak does not, so role and stability weigh more and raw
-# production less than in the first design (0.30 / 0.25 / 0.20 / 0.15 / 0.10). Re-check as data grows.
+# Backtest on the first weeks of 2026-27 (preseason excluded) says role changes persist more than production
+# spikes, so role weighs most. Production keeps a real weight (and a floor, see min_production_percentile) because
+# a rising player who produces little cannot help a roster. With only weeks of data the backtest cannot rank nearby
+# weightings reliably, so treat these as sensible defaults and re-check as the season grows.
 DEFAULT_SIGNAL_WEIGHTS = {
-    "role": 0.40, "production": 0.10, "volume": 0.15, "trend": 0.15, "stability": 0.20,
+    "role": 0.35, "production": 0.20, "volume": 0.15, "trend": 0.10, "stability": 0.20,
 }
 
 
@@ -43,7 +44,8 @@ class Settings:
 
     # Waiver pool: players ranked BELOW this by season average (needs min_games).
     pool_cutoff: int = 100
-    min_games: int = 5
+    pool_max_rank: int = 250                 # ...and ranked no worse than this (below it nobody is worth a roster spot)
+    min_games: int = 8
     # Add lists ignore players whose recent minutes are below this (cannot help a roster).
     min_recent_minutes: float = 12.0
 
@@ -59,6 +61,11 @@ class Settings:
     tier_good: float = 90.0
     # A rise not backed by a real role or volume change cannot score above this (below "Consider adding").
     spike_cap: float = 79.0
+    # Add lists: a player who is not playing right now, or who produces too little to help, cannot reach the
+    # "Consider adding" / "Good catch" bands (score capped at spike_cap, shown as "Watch closely" at most).
+    absence_cap_games: int = 2               # missed this many of his team's last games = not an add right now
+    min_production_percentile: float = 40.0  # production signal (0-100 within the pool) must reach this
+
     # "Backed" means at least one of these changes (recent vs baseline) is reached:
     backing_minutes_delta: float = 3.0       # minutes per game
     backing_starter_delta: float = 0.4       # share of games started (0.4 = e.g. 2 more starts in 5)
@@ -94,6 +101,12 @@ class Settings:
         if total <= 0:
             raise ValueError("signal_weights must sum to more than 0")
         self.signal_weights = {k: v / total for k, v in self.signal_weights.items()}
+        if self.pool_max_rank < self.pool_cutoff:
+            raise ValueError("pool_max_rank must be at least pool_cutoff")
+        if self.absence_cap_games < 1:
+            raise ValueError("absence_cap_games must be at least 1")
+        if not 0 <= self.min_production_percentile <= 100:
+            raise ValueError("min_production_percentile must be between 0 and 100")
         if self.drop_protect_rank < 0:
             raise ValueError("drop_protect_rank cannot be negative")
         if self.drop_max_baseline_rank < self.drop_protect_rank:

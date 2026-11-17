@@ -46,6 +46,9 @@ _TRUE = {"1", "true", "yes", "on"}
 QUERY_SETTINGS = {
     "format": ("league_format", str),
     "pool_cutoff": ("pool_cutoff", int),
+    "pool_max_rank": ("pool_max_rank", int),
+    "absence_cap_games": ("absence_cap_games", int),
+    "min_production_percentile": ("min_production_percentile", float),
     "min_games": ("min_games", int),
     "min_recent_minutes": ("min_recent_minutes", float),
     "max_top_tier": ("max_top_tier", int),

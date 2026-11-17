@@ -32,6 +32,7 @@ class AppState extends ChangeNotifier {
   String apiKey = '';
   String format = 'points'; // 'points' or 'categories'
   int poolCutoff = 100;
+  int poolMaxRank = 250;
   double minRecentMinutes = 12;
   Map<String, double> pointsWeights = Map<String, double>.of(defaultWeights);
   List<String> categories = List<String>.of(defaultCategories);
@@ -48,6 +49,7 @@ class AppState extends ChangeNotifier {
   Map<String, dynamic> get scoringBody => {
         'league_format': format,
         'pool_cutoff': poolCutoff,
+        'pool_max_rank': poolMaxRank,
         'min_recent_minutes': minRecentMinutes,
         'points_weights': pointsWeights,
         'categories': categories,
@@ -63,6 +65,7 @@ class AppState extends ChangeNotifier {
       apiKey = prefs.getString('apiKey') ?? '';
       format = prefs.getString('format') ?? 'points';
       poolCutoff = prefs.getInt('poolCutoff') ?? 100;
+      poolMaxRank = prefs.getInt('poolMaxRank') ?? 250;
       minRecentMinutes = prefs.getDouble('minRecentMinutes') ?? 12;
       final weights = prefs.getString('weights');
       if (weights != null) {
@@ -140,6 +143,7 @@ class AppState extends ChangeNotifier {
     String? apiKey,
     String? format,
     int? poolCutoff,
+    int? poolMaxRank,
     double? minRecentMinutes,
     Map<String, double>? pointsWeights,
     List<String>? categories,
@@ -148,6 +152,7 @@ class AppState extends ChangeNotifier {
     this.apiKey = apiKey ?? this.apiKey;
     this.format = format ?? this.format;
     this.poolCutoff = poolCutoff ?? this.poolCutoff;
+    this.poolMaxRank = poolMaxRank ?? this.poolMaxRank;
     this.minRecentMinutes = minRecentMinutes ?? this.minRecentMinutes;
     this.pointsWeights = pointsWeights ?? this.pointsWeights;
     this.categories = categories ?? this.categories;
@@ -159,6 +164,7 @@ class AppState extends ChangeNotifier {
         await prefs.setString('apiKey', this.apiKey);
         await prefs.setString('format', this.format);
         await prefs.setInt('poolCutoff', this.poolCutoff);
+        await prefs.setInt('poolMaxRank', this.poolMaxRank);
         await prefs.setDouble('minRecentMinutes', this.minRecentMinutes);
         await prefs.setString('weights', jsonEncode(this.pointsWeights));
         await prefs.setStringList('categories', this.categories);

@@ -20,14 +20,14 @@
     "turnovers"
   ],
   "signal_weights": {
-    "role": 0.4,
-    "production": 0.1,
+    "role": 0.35,
+    "production": 0.2,
     "volume": 0.15,
-    "trend": 0.15,
+    "trend": 0.1,
     "stability": 0.2
   },
   "pool_cutoff": 100,
-  "min_games": 5,
+  "min_games": 8,
   "min_recent_minutes": 12,
   "tier_watch": 70,
   "tier_add": 80,
@@ -44,5 +44,8 @@
   "max_stash_listed": 10,
   "drop_protect_rank": 100,
   "drop_requires_role_loss": true,
-  "drop_max_baseline_rank": 250
+  "drop_max_baseline_rank": 250,
+  "pool_max_rank": 250,
+  "absence_cap_games": 2,
+  "min_production_percentile": 40.0
 }

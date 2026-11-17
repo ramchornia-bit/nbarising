@@ -305,6 +305,11 @@ def score_population(
             if score > settings.spike_cap:
                 score, capped = settings.spike_cap, True
             suppress = direction == "down" and settings.drop_requires_role_loss
+        too_weak = False
+        if direction == "up" and parts[pid]["production"] < settings.min_production_percentile:
+            if score > settings.spike_cap:
+                score, capped = settings.spike_cap, True
+            too_weak = True
         out.append({
             "playerId": pid,
             "playerName": histories[pid].name,
@@ -315,7 +320,8 @@ def score_population(
             "recentValues": s["detail"]["valueRecentList"],
             "minutesRecent": round(s["detail"]["minutesRecent"], 1),
             "minutesBaseline": round(s["detail"]["minutesBaseline"], 1),
-            "reason": reasons_for(s, direction, unit, capped, settings),
+            "reason": reasons_for(s, direction, unit, capped and not backed, settings)
+            + (" Production is too low to help a roster, so the score is capped." if too_weak and capped else ""),
             "capped": capped,
         })
     return out
@@ -335,7 +341,8 @@ def absence_flag(connection: sqlite3.Connection, history: History,
     ).fetchone()[0]
     if missed <= 0:
         return None
-    return {"level": "recent_absence", "text": f"Missed his team's last {missed} game{'s' if missed != 1 else ''}"}
+    return {"level": "recent_absence", "missed": missed,
+            "text": f"Missed his team's last {missed} game{'s' if missed != 1 else ''}"}
 
 
 STASH_LEVELS = {"out_long", "season_ending"}
@@ -416,10 +423,21 @@ def waiver_list(
         direction = "up"
         population = [
             pid for pid in eligible
-            if rank[pid] > settings.pool_cutoff
+            if settings.pool_cutoff < rank[pid] <= settings.pool_max_rank
             and _mean([g.minutes for g in histories[pid].games[-recent_n:]]) >= settings.min_recent_minutes
         ]
     scored = score_population(histories, population, direction, recent_n, baseline_n, settings, pop_std)
+    absence_cache: dict[int, dict[str, Any] | None] = {}
+    if direction == "up":
+        # Someone who is not playing right now is not an add right now, whatever his earlier games say.
+        for item in scored:
+            flag = absence_flag(connection, histories[item["playerId"]], as_of)
+            absence_cache[item["playerId"]] = flag
+            if flag and flag["missed"] >= settings.absence_cap_games:
+                if item["score"] > settings.spike_cap:
+                    item["score"], item["capped"] = settings.spike_cap, True
+                item["label"] = label_for(item["score"], settings, "up")
+                item["reason"] += f" He has missed his team's last {flag['missed']} games, so wait until he is back."
     scored.sort(key=lambda item: item["score"], reverse=True)
     injury_flags = {} if as_of else latest_injury_flags(connection, settings)
     _apply_tiers(scored, direction, settings, injury_flags)
@@ -449,7 +467,8 @@ def waiver_list(
         flags = []
         if item["playerId"] in injury_flags:
             flags.append(injury_flags[item["playerId"]])
-        absence = absence_flag(connection, history, as_of)
+        absence = absence_cache[item["playerId"]] if item["playerId"] in absence_cache \
+            else absence_flag(connection, history, as_of)
         if absence:
             flags.append(absence)
         item["flags"] = flags
@@ -464,6 +483,8 @@ def waiver_list(
         "baselineGames": baseline_n,
         "playersWithEnoughGames": len(eligible),
         "populationSize": len(population),
+        "pool": ({"minRank": settings.pool_cutoff + 1, "maxRank": settings.pool_max_rank}
+                 if direction == "up" else None),
         "notes": notes,
         "distribution": distribution,
         "players": shown,

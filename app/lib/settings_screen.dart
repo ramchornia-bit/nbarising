@@ -39,6 +39,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   late final TextEditingController _key;
   late final Map<String, TextEditingController> _weights;
   late double _pool;
+  late double _poolMax;
   late double _minMinutes;
   late Set<String> _categories;
   String? _testResult;
@@ -52,6 +53,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _url = TextEditingController(text: s.baseUrl);
     _key = TextEditingController(text: s.apiKey);
     _pool = s.poolCutoff.toDouble();
+    _poolMax = s.poolMaxRank.toDouble().clamp(150.0, 450.0);
     _minMinutes = s.minRecentMinutes;
     _categories = s.categories.toSet();
     _weights = {
@@ -99,6 +101,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       _categories = defaultCategories.toSet();
       _minMinutes = 12;
       _pool = 100;
+      _poolMax = 250;
       _error = null;
     });
   }
@@ -123,6 +126,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       baseUrl: _url.text.trim(),
       apiKey: _key.text.trim(),
       poolCutoff: _pool.round(),
+      poolMaxRank: (_poolMax < _pool + 25 ? _pool + 25 : _poolMax).round(),
       minRecentMinutes: _minMinutes,
       pointsWeights: weights,
       categories: categories,
@@ -213,7 +217,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const Divider(height: 40),
           Text('Waiver pool', style: theme.textTheme.titleMedium),
           const SizedBox(height: 8),
-          Text('Players ranked below #${_pool.round()} count as available', style: theme.textTheme.bodyMedium),
+          Text('Available players are ranked #${_pool.round() + 1} to #${(_poolMax < _pool + 25 ? _pool + 25 : _poolMax).round()} '
+              'by season average', style: theme.textTheme.bodyMedium),
+          const SizedBox(height: 4),
+          Text('Owned from rank #${_pool.round() + 1}: players ranked above this are treated as owned and never suggested.',
+              style: hint),
           Slider(
             value: _pool,
             min: 50,
@@ -222,8 +230,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
             label: _pool.round().toString(),
             onChanged: (v) => setState(() => _pool = v),
           ),
-          Text('Players ranked this high by season average are treated as owned and are not suggested.',
-              style: hint),
+          Text('Ignore players ranked worse than #${(_poolMax < _pool + 25 ? _pool + 25 : _poolMax).round()}: '
+              'nobody is worth a roster spot there.', style: hint),
+          Slider(
+            value: _poolMax,
+            min: 150,
+            max: 450,
+            divisions: 30,
+            label: _poolMax.round().toString(),
+            onChanged: (v) => setState(() => _poolMax = v),
+          ),
           const SizedBox(height: 16),
           Text('Minimum recent minutes: ${_minMinutes.round()}', style: theme.textTheme.bodyMedium),
           Slider(

@@ -98,6 +98,8 @@ class ListResult {
     required this.baselineGames,
     required this.populationSize,
     required this.distribution,
+    required this.poolMin,
+    required this.poolMax,
   });
 
   final List<Player> players;
@@ -107,6 +109,8 @@ class ListResult {
   final int? baselineGames;
   final int? populationSize;
   final Map<String, int> distribution;
+  final int? poolMin;
+  final int? poolMax;
 
   factory ListResult.fromJson(Map<String, dynamic> j) => ListResult(
         players: ((j['players'] as List?) ?? const [])
@@ -121,6 +125,8 @@ class ListResult {
         distribution: j['distribution'] is Map
             ? (j['distribution'] as Map).map((k, v) => MapEntry(k.toString(), (v as num).toInt()))
             : <String, int>{},
+        poolMin: j['pool'] is Map ? ((j['pool'] as Map)['minRank'] as num?)?.toInt() : null,
+        poolMax: j['pool'] is Map ? ((j['pool'] as Map)['maxRank'] as num?)?.toInt() : null,
       );
 }
 
